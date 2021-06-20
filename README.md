@@ -3,7 +3,7 @@
 A Web Component abstraction to declaratively render elements that depend on asynchronous processes.
 This component has 0 dependencies and is made with native browser technologies only.
 
-Inspired by [React Suspense](https://reactjs.org/docs/react-api.html#reactsuspense)
+Inspired by [React Suspense](https://reactjs.org/docs/react-api.html#reactsuspense) and [Pending Task Protocol proposal](https://github.com/webcomponents/community-protocols/pull/1).
 
 ```html
 <suspense-element>
@@ -39,7 +39,8 @@ This suspense-element is just a helper, an alternative, to do this declaratively
 Similar to React.Suspense, I would not recommend it for common usage, honestly, but perhaps I am not aware of some of its niche use cases where it works well.
 
 There is one hard coupling between the suspense-element and the main-element.
-`main-element` must have a `suspenses` getter that retuns an array of Promises. This is necessary for the `suspense-element` to know for which internal asynchronous processes it should suspend displaying the `main-element` and display the fallback instead. It also uses this to watch for any of these internal processes throwing, and render the error content in that case.
+`main-element` must dispatch a PendingTaskEvent with a `complete` property that contains a Promise or an array of Promises. 
+This is necessary for the `suspense-element` to know for which internal asynchronous processes it should suspend displaying the `main-element` and display the fallback instead. It also uses this to watch for any of these internal processes throwing, and render the error content in that case.
 
 > This is mostly an experimental thing for now, if people want to use it in production environments, please raise an issue and I'll write tests for this.
 
@@ -59,11 +60,8 @@ export class MainElement extends HTMLElement {
         // reject(); // <-- if you want to see the error fallback, make this suspense reject
       }, 1000),
     );
-  }
 
-  // Tag it as a suspense
-  get suspenses() {
-    return [this.list];
+    this.dispatchEvent(new PendingTaskEvent([this.list]));
   }
 
   render() {
