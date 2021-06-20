@@ -18,7 +18,7 @@
     "postinstall": "npm run custom-elements-manifest",
     "lint": "eslint --ext .js,.html . --ignore-path .gitignore && prettier \"**/*.{html,js,json}\" --check --ignore-path .gitignore && tsc",
     "prepare": "husky install",
-    "release": "npm run build && changeset release",
+    "release": "npm run build && changeset publish",
     "start": "wds --open --watch --app-index demo/index.html"
   },
   "devDependencies": {
