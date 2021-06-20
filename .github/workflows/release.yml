@@ -8,7 +8,7 @@ on:
 jobs:
   release:
     # Prevents changesets action from creating a PR on forks
-    if: github.repository == 'code-workshop-kit/create'
+    if: github.repository == 'jorenbroekema/suspense-element'
     name: Release
     runs-on: ubuntu-latest
     steps:
