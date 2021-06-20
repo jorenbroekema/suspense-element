@@ -6,7 +6,9 @@ export class MainElement extends HTMLElement {
     // Set property to promise initially
     this.list = new Promise((resolve /* , reject */) =>
       setTimeout(() => {
-        resolve(['foo', 'bar', 'qux']);
+        this.listData = ['foo', 'bar', 'qux'];
+        this.render();
+        resolve();
         // reject(); // <-- if you want to see the error fallback, make this suspense reject
       }, 1000),
     );
@@ -14,24 +16,19 @@ export class MainElement extends HTMLElement {
 
   // Tag it as a suspense
   get suspenses() {
-    return { list: this.list };
+    return [this.list];
   }
 
   render() {
     this.shadowRoot.innerHTML = `
       <h1>Hello, World!</h1>
-      ${
-        // Assume it is resolved here and set to its result
-        this.list
-          ? this.list
-              .map(
-                (item) => `
+      ${this.listData
+        .map(
+          (item) => `
           <li>${item}</li>
         `,
-              )
-              .reduce((acc, item) => acc.concat(item), '')
-          : ''
-      }
+        )
+        .reduce((acc, item) => acc.concat(item), '')}
     `;
   }
 }

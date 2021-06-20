@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "define.js",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "suspense-element",
+          "declaration": {
+            "name": "SuspenseElement",
+            "module": "/index.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "index.js",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SuspenseElement",
+          "declaration": {
+            "name": "SuspenseElement",
+            "module": "./src/SuspenseElement.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/SuspenseElement.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "SuspenseElement",
+          "members": [
+            {
+              "kind": "field",
+              "name": "state",
+              "default": "'pending'"
+            },
+            {
+              "kind": "field",
+              "name": "mainSlot"
+            },
+            {
+              "kind": "method",
+              "name": "render"
+            },
+            {
+              "kind": "method",
+              "name": "onSlotChange",
+              "parameters": [
+                {
+                  "name": "ev"
+                }
+              ]
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "suspense-element",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SuspenseElement",
+          "declaration": {
+            "name": "SuspenseElement",
+            "module": "src/SuspenseElement.js"
+          }
+        }
+      ]
+    }
+  ]
+}
