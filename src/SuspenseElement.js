@@ -1,3 +1,6 @@
+/**
+ * @typedef {import('./PendingTaskEvent.js').PendingTaskEvent} PendingTaskEvent
+ */
 export class SuspenseElement extends HTMLElement {
   get state() {
     return this.getAttribute('state') || 'pending';
@@ -14,13 +17,18 @@ export class SuspenseElement extends HTMLElement {
 
   constructor() {
     super();
+    this.boundPendingTaskEventHandler = this.pendingTaskEventHandler.bind(this);
+    this.addEventListener('pending-task', this.boundPendingTaskEventHandler);
     this.attachShadow({ mode: 'open' });
     this.state = 'pending';
   }
 
   connectedCallback() {
     this.render();
-    this.mainSlot?.addEventListener('slotchange', this.onSlotChange.bind(this));
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener('pending-task', this.boundPendingTaskEventHandler);
   }
 
   render() {
@@ -52,37 +60,26 @@ export class SuspenseElement extends HTMLElement {
     }
   }
 
-  /**
-   * @param {Event} ev
-   */
-  async onSlotChange(ev) {
-    // Get the default slot assigned node (ignore text nodes)
-    const assignedNode =
-      /** @type {Array<HTMLElement & { suspenses: Promise<unknown>[]}>} */ (
-        Array.from(
-          /** @type {HTMLSlotElement} */ (ev.target).assignedNodes(),
-        ).filter((node) => node.nodeName !== '#text')
-      )[0];
+  /** @param {Event} e */
+  async pendingTaskEventHandler(e) {
+    const _e = /** @type {PendingTaskEvent} */ (e);
+    _e.stopPropagation();
+    if (Array.isArray(_e.complete)) {
+      this.complete = _e.complete;
+    } else {
+      this.complete = [_e.complete];
+    }
 
-    // The main slottable might not be defined yet in case of a custom element
-    const tagName = assignedNode.tagName.toLowerCase();
-    customElements.whenDefined(tagName).then(() => {
-      const results = [];
-      for (const suspense of assignedNode.suspenses) {
-        results.push(suspense);
-      }
-
-      Promise.all(results)
-        .then(() => {
-          this.state = 'success';
-          this.style.setProperty('--main-display', 'block');
-          this.style.setProperty('--fallback-display', 'none');
-        })
-        .catch(() => {
-          this.state = 'error';
-          this.style.setProperty('--error-display', 'block');
-          this.style.setProperty('--fallback-display', 'none');
-        });
-    });
+    Promise.all(this.complete)
+      .then(() => {
+        this.state = 'success';
+        this.style.setProperty('--main-display', 'block');
+        this.style.setProperty('--fallback-display', 'none');
+      })
+      .catch(() => {
+        this.state = 'error';
+        this.style.setProperty('--error-display', 'block');
+        this.style.setProperty('--fallback-display', 'none');
+      });
   }
 }

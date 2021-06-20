@@ -1,3 +1,5 @@
+import { PendingTaskEvent } from '../src/PendingTaskEvent.js';
+
 export class MainElement extends HTMLElement {
   constructor() {
     super();
@@ -12,11 +14,8 @@ export class MainElement extends HTMLElement {
         // reject(); // <-- if you want to see the error fallback, make this suspense reject
       }, 1000),
     );
-  }
 
-  // Tag it as a suspense
-  get suspenses() {
-    return [this.list];
+    this.dispatchEvent(new PendingTaskEvent([this.list]));
   }
 
   render() {
