@@ -37,7 +37,9 @@
     "typescript": "^4.3.4"
   },
   "keywords": [],
-  "access": "public",
+  "publishConfig": {
+    "access": "public"
+  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
