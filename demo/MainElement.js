@@ -15,7 +15,9 @@ export class MainElement extends HTMLElement {
       }, 1000),
     );
 
-    this.dispatchEvent(new PendingTaskEvent([this.list]));
+    // Alternatively, combine multiple promises in a wrapping Promise.all()
+
+    this.dispatchEvent(new PendingTaskEvent(this.list));
   }
 
   render() {

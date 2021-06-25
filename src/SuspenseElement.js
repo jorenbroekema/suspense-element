@@ -64,13 +64,8 @@ export class SuspenseElement extends HTMLElement {
   async pendingTaskEventHandler(e) {
     const _e = /** @type {PendingTaskEvent} */ (e);
     _e.stopPropagation();
-    if (Array.isArray(_e.complete)) {
-      this.complete = _e.complete;
-    } else {
-      this.complete = [_e.complete];
-    }
 
-    Promise.all(this.complete)
+    _e.complete
       .then(() => {
         this.state = 'success';
         this.style.setProperty('--main-display', 'block');
