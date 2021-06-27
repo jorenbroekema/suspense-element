@@ -3,7 +3,7 @@
  */
 export class SuspenseElement extends HTMLElement {
   get state() {
-    return this.getAttribute('state') || 'pending';
+    return /** @type {string} */ (this.getAttribute('state'));
   }
 
   /** @param {string} value */
@@ -11,16 +11,12 @@ export class SuspenseElement extends HTMLElement {
     this.setAttribute('state', value);
   }
 
-  get mainSlot() {
-    return this.shadowRoot?.querySelector('slot.main');
-  }
-
   constructor() {
     super();
+    this.state = 'pending';
+    this.attachShadow({ mode: 'open' });
     this.boundPendingTaskEventHandler = this.pendingTaskEventHandler.bind(this);
     this.addEventListener('pending-task', this.boundPendingTaskEventHandler);
-    this.attachShadow({ mode: 'open' });
-    this.state = 'pending';
   }
 
   connectedCallback() {
@@ -64,13 +60,8 @@ export class SuspenseElement extends HTMLElement {
   async pendingTaskEventHandler(e) {
     const _e = /** @type {PendingTaskEvent} */ (e);
     _e.stopPropagation();
-    if (Array.isArray(_e.complete)) {
-      this.complete = _e.complete;
-    } else {
-      this.complete = [_e.complete];
-    }
 
-    Promise.all(this.complete)
+    _e.complete
       .then(() => {
         this.state = 'success';
         this.style.setProperty('--main-display', 'block');

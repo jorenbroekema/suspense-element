@@ -4,6 +4,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "lib": ["es2017", "dom"],
+    "types": ["node", "mocha", "sinon"],
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
@@ -14,5 +15,5 @@
     "suppressImplicitAnyIndexErrors": true
   },
   "include": ["**/*.js"],
-  "exclude": ["node_modules", "demo"]
+  "exclude": ["node_modules", "coverage", "marked"]
 }

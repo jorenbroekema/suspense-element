@@ -1,0 +1,49 @@
+html,
+body {
+  background-color: rgb(20, 20, 20);
+  color: white;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva,
+    Verdana, sans-serif;
+  font-size: 16px;
+}
+
+main {
+  max-width: 1000px;
+  padding: 0 30px;
+  margin: 50px auto 100px auto;
+}
+
+h1 {
+  text-align: center;
+}
+
+a {
+  color: rgb(51, 142, 202);
+}
+
+.demo {
+  display: inline-block;
+  padding: 20px;
+  background-color: rgb(28, 27, 36);
+}
+
+blockquote {
+  padding-left: 20px;
+  border-left: 3px solid salmon;
+  margin-block-start: 2em;
+  margin-left: 0;
+}
+
+pre {
+  padding: 15px;
+  background-color: rgb(26, 26, 26);
+}
+
+.hljs-comment {
+  color: rgb(167, 167, 167);
+}
+
+code > span {
+  white-space: normal;
+  overflow-wrap: break-word;
+}

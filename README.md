@@ -5,13 +5,13 @@ This component has 0 dependencies and is made with native browser technologies o
 
 Inspired by [React Suspense](https://reactjs.org/docs/react-api.html#reactsuspense) and [Pending Task Protocol proposal](https://github.com/webcomponents/community-protocols/pull/1).
 
-```html
-<suspense-element>
+<suspense-element class="demo">
   <span slot="fallback">Loading...</span>
   <span slot="error">Error :(</span>
-  <main-element></main-element>
+  <demo-element></demo-element>
 </suspense-element>
-```
+
+[See the demo](https://suspense-element.netlify.app) or run it locally with `npm start` after installing.
 
 ## Features
 
@@ -20,38 +20,66 @@ Inspired by [React Suspense](https://reactjs.org/docs/react-api.html#reactsuspen
 
 ## Usage
 
+### Installation
+
+Installing with NPM
+
 ```sh
 npm i suspense-element
 ```
 
-```js
-// defines it on customElements registry
-import 'suspense-element/define';
+Import the class and define it on the registry yourself, or import the custom elements definition to have it done for you.
 
-// or to import the element and handle that yourself or extend it
+```js
 import { SuspenseElement } from 'suspense-element';
+
+// Or
+
+import 'suspense-element/define';
 ```
 
-## Rationale
+Render the suspense element with a fallback slot, optionally an error slot, and the element that is expected to fire a PendingTaskEvent.
 
-In my opinion, it is often easier and better to handle conditional rendering based on asynchronous processes in the `main-element` itself.
-This suspense-element is just a helper, an alternative, to do this declaratively in HTML instead in case people prefer that...
-Similar to React.Suspense, I would not recommend it for common usage, honestly, but perhaps I am not aware of some of its niche use cases where it works well.
+```html
+<suspense-element>
+  <span slot="fallback">Loading...</span>
+  <span slot="error">Error :(</span>
+  <main-element></main-element>
+</suspense-element>
+```
 
-There is one hard coupling between the suspense-element and the main-element.
-`main-element` must dispatch a PendingTaskEvent with a `complete` property that contains a Promise or an array of Promises. 
-This is necessary for the `suspense-element` to know for which internal asynchronous processes it should suspend displaying the `main-element` and display the fallback instead. It also uses this to watch for any of these internal processes throwing, and render the error content in that case.
+### Demo resolve
 
-> This is mostly an experimental thing for now, if people want to use it in production environments, please raise an issue and I'll write tests for this.
+If you're viewing the docs site, below is a demo of the suspense-element where the main element pending task is resolved, in action.
 
-## Example main-element
+<suspense-element class="demo">
+  <span slot="fallback">Loading...</span>
+  <span slot="error">Error :(</span>
+  <demo-element></demo-element>
+</suspense-element>
+
+### Demo reject
+
+If you're viewing the docs site, below is a demo of the suspense-element where the main element pending task is rejected, in action.
+
+<suspense-element class="demo">
+  <span slot="fallback">Loading...</span>
+  <span slot="error">Error :(</span>
+  <demo-element reject></demo-element>
+</suspense-element>
+
+### Example main-element
 
 ```js
-export class MainElement extends HTMLElement {
+class MainElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
 
+    /**
+     * Set property to promise initially
+     * @type {Promise<void>}
+     */
     this.list = new Promise((resolve /* , reject */) =>
       setTimeout(() => {
         this.listData = ['foo', 'bar', 'qux'];
@@ -61,11 +89,14 @@ export class MainElement extends HTMLElement {
       }, 1000),
     );
 
-    this.dispatchEvent(new PendingTaskEvent([this.list]));
+    // Alternatively, combine multiple promises in a wrapping Promise.all()
+
+    this.dispatchEvent(new PendingTaskEvent(this.list));
   }
 
   render() {
-    this.shadowRoot.innerHTML = `
+    if (this.shadowRoot) {
+      this.shadowRoot.innerHTML = `
       <h1>Hello, World!</h1>
       ${this.listData
         .map(
@@ -75,8 +106,19 @@ export class MainElement extends HTMLElement {
         )
         .reduce((acc, item) => acc.concat(item), '')}
     `;
+    }
   }
 }
 ```
 
 > With a Lit component you would probably set shouldUpdate to false until all data is available that the template depends on and trigger a manual re-render.
+
+## Rationale
+
+In my opinion, it is often easier and better to handle conditional rendering based on asynchronous processes in the `main-element` itself.
+This suspense-element is just a helper, an alternative, to do this declaratively in HTML instead in case people prefer that...
+Similar to React.Suspense, I would not recommend it for common usage, honestly, but perhaps I am not aware of some of its niche use cases where it works well.
+
+There is one hard coupling between the suspense-element and the main-element.
+`main-element` must dispatch a PendingTaskEvent with a `complete` property that contains a Promise or an array of Promises.
+This is necessary for the `suspense-element` to know for which internal asynchronous processes it should suspend displaying the `main-element` and display the fallback instead. It also uses this to watch for any of these internal processes throwing, and render the error content in that case.

@@ -4,6 +4,7 @@
   "description": "A Web Component abstraction to declaratively render elements that depend on asynchronous processes",
   "license": "MIT",
   "author": "Joren Broekema <Joren.Broekema@gmail.com>",
+  "type": "module",
   "main": "index.js",
   "files": [
     "*.d.ts",
@@ -12,14 +13,18 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.types.json",
-    "custom-elements-manifest": "custom-elements-manifest analyze --exclude \"demo/**/*\"",
+    "build": "npm run custom-elements-manifest && tsc -p tsconfig.build.types.json && npm run demo:build",
+    "custom-elements-manifest": "custom-elements-manifest analyze",
+    "debug": "wtr test/**/*.test.js --watch",
+    "demo:build": "node marked/run-marked.js",
+    "demo:watch": "node marked/watch-marked.js",
     "format": "eslint --ext .js,.html . --fix --ignore-path .gitignore && prettier \"**/*.{html,js,json}\" --write --ignore-path .gitignore && prettier-package-json --write ./package.json",
     "postinstall": "npm run custom-elements-manifest",
     "lint": "eslint --ext .js,.html . --ignore-path .gitignore && prettier \"**/*.{html,js,json}\" --check --ignore-path .gitignore && tsc",
     "prepare": "husky install",
     "release": "npm run build && changeset publish",
-    "start": "wds --open --watch --app-index demo/index.html"
+    "start": "concurrently \"npm run demo:watch\" \"wds\"",
+    "test": "wtr test/**/*.test.js --coverage"
   },
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
@@ -27,11 +32,19 @@
     "@commitlint/config-conventional": "^12.1.4",
     "@custom-elements-manifest/analyzer": "^0.3.1",
     "@open-wc/eslint-config": "^4.3.0",
+    "@open-wc/testing": "^3.0.0-next.2",
     "@web/dev-server": "^0.1.17",
+    "@web/test-runner": "^0.13.12",
+    "@web/test-runner-playwright": "^0.8.6",
+    "@web/test-runner-puppeteer": "^0.10.0",
+    "chokidar": "^3.5.2",
+    "concurrently": "^6.2.0",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^7.2.0",
+    "highlight.js": "^10.7.3",
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
+    "marked": "^2.1.3",
     "prettier": "^2.2.1",
     "prettier-package-json": "^2.6.0",
     "typescript": "^4.3.4"
@@ -46,12 +59,6 @@
     ]
   },
   "customElements": "custom-elements.json",
-  "eslintConfig": {
-    "extends": [
-      "@open-wc/eslint-config",
-      "eslint-config-prettier"
-    ]
-  },
   "exports": {
     ".": "./index.js",
     "./define": "./define.js"
@@ -66,6 +73,7 @@
   "prettier": {
     "singleQuote": true,
     "arrowParens": "always",
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "printWidth": 100
   }
 }
