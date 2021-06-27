@@ -29,5 +29,12 @@ export const buildHtmlFromMd = async () => {
       path.resolve(rootFolder, `index.html`),
       template.replace('{{ content }}', htmlString),
     );
+
+    // Pick a highlight.js theme and put it in the rootfolder so this folder can
+    // be deployed and work anywhere (e.g. netlify, heroku, whatever).
+    await fs.copyFile(
+      path.resolve('node_modules', 'highlight.js', 'styles', 'hybrid.css'),
+      path.resolve(rootFolder, 'highlight-hybrid.css'),
+    );
   }
 };
