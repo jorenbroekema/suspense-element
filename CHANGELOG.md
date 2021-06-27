@@ -1,5 +1,11 @@
 # suspense-element
 
+## 0.3.0
+
+### Minor Changes
+
+- 220e8b5: BREAKING: Align complete type with proposal, [see discussion](https://github.com/webcomponents/community-protocols/pull/1#discussion_r654970854)
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "suspense-element",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A Web Component abstraction to declaratively render elements that depend on asynchronous processes",
   "license": "MIT",
   "author": "Joren Broekema <Joren.Broekema@gmail.com>",
