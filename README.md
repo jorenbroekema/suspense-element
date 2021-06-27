@@ -119,6 +119,6 @@ In my opinion, it is often easier and better to handle conditional rendering bas
 This suspense-element is just a helper, an alternative, to do this declaratively in HTML instead in case people prefer that...
 Similar to React.Suspense, I would not recommend it for common usage, honestly, but perhaps I am not aware of some of its niche use cases where it works well.
 
-There is one hard coupling between the suspense-element and the main-element.
-`main-element` must dispatch a PendingTaskEvent with a `complete` property that contains a Promise or an array of Promises.
+There is one hard coupling between the `suspense-element` and the `main-element`.
+`main-element` must dispatch a PendingTaskEvent with a `complete` property that contains a Promise (or multiple promises wrapped in a `Promise.all()`).
 This is necessary for the `suspense-element` to know for which internal asynchronous processes it should suspend displaying the `main-element` and display the fallback instead. It also uses this to watch for any of these internal processes throwing, and render the error content in that case.
