@@ -12,8 +12,9 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
-    "suppressImplicitAnyIndexErrors": true
+    "suppressImplicitAnyIndexErrors": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["**/*.js"],
-  "exclude": ["node_modules", "coverage", "marked"]
+  "exclude": ["node_modules", "coverage", "dist"]
 }
