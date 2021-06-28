@@ -38,7 +38,9 @@ import { SuspenseElement } from 'suspense-element';
 import 'suspense-element/define';
 ```
 
-Render the suspense element with a fallback slot, optionally an error slot, and the element that is expected to fire a PendingTaskEvent.
+Render the suspense element with a fallback slot, optionally an error slot.
+
+> The main element that is expected to fire a `PendingTaskEvent`, see example code further down.
 
 ```html
 <suspense-element>
@@ -71,6 +73,8 @@ If you're viewing the docs site, below is a demo of the suspense-element where t
 ### Example main-element
 
 ```js
+import { PendingTaskEvent } from 'suspense-element';
+
 class MainElement extends HTMLElement {
   constructor() {
     super();
