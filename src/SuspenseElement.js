@@ -17,14 +17,7 @@ export class SuspenseElement extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.boundPendingTaskEventHandler = this.pendingTaskEventHandler.bind(this);
     this.addEventListener('pending-task', this.boundPendingTaskEventHandler);
-  }
-
-  connectedCallback() {
     this.render();
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener('pending-task', this.boundPendingTaskEventHandler);
   }
 
   render() {
