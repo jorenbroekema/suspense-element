@@ -1,5 +1,11 @@
 # suspense-element
 
+## 0.3.1
+
+### Patch Changes
+
+- 14c36a5: Render once and set event listener in constructor. Add export for PendingTaskEvent.
+
 ## 0.3.0
 
 ### Minor Changes
