@@ -15,7 +15,9 @@
   "scripts": {
     "build": "npm run custom-elements-manifest && tsc -p tsconfig.build.types.json && npm run demo:build",
     "custom-elements-manifest": "custom-elements-manifest analyze",
-    "debug": "wtr test/**/*.test.js --watch",
+    "debug": "wtr test/**/*.test.js --watch --config web-test-runner-chromium.config.mjs",
+    "debug:firefox": "wtr test/**/*.test.js --watch --config web-test-runner-firefox.config.mjs",
+    "debug:webkit": "wtr test/**/*.test.js --watch --config web-test-runner-webkit.config.mjs",
     "demo:build": "node marked/run-marked.js",
     "demo:prod": "npm run demo:build && rollup -c rollup.config.js",
     "demo:watch": "node marked/watch-marked.js",

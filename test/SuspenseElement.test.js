@@ -1,5 +1,5 @@
 import { expect, fixture as _fixture, defineCE, aTimeout } from '@open-wc/testing';
-import { PendingTaskEvent } from '../src/PendingTaskEvent.js';
+import { PendingTaskEvent, ResetErrorEvent } from '../index.js';
 import '../define.js';
 
 /**
@@ -151,5 +151,161 @@ describe('<suspense-element>', () => {
     expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
     expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
     expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+  });
+
+  it('handles subsequent async tasks through pending-task events, showing again the fallback until it resolves', async () => {
+    const el = await fixture(`
+      <suspense-element>
+        <span slot="fallback">Loading...</span>
+        <span slot="error">Error :(</span>
+        <${mainTag}></${mainTag}>
+      </suspense-element>
+    `);
+
+    const { mainSlottable, fallbackSlot, errorSlot, mainSlot } = getMembers(el);
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`block`);
+
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`block`);
+  });
+
+  it('handles multiple stacked pending tasks and resolves to rendering the main element after all of them have resolved', async () => {
+    const el = await fixture(`
+      <suspense-element>
+        <span slot="fallback">Loading...</span>
+        <span slot="error">Error :(</span>
+        <${mainTag}></${mainTag}>
+      </suspense-element>
+    `);
+
+    const { mainSlottable, fallbackSlot, errorSlot, mainSlot } = getMembers(el);
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`block`);
+
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 150))),
+    );
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+    await aTimeout(150);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`block`);
+  });
+
+  it('keeps showing the error slot by default when a single pending task rejects', async () => {
+    const el = await fixture(`
+      <suspense-element>
+        <span slot="fallback">Loading...</span>
+        <span slot="error">Error :(</span>
+        <${mainTag} reject></${mainTag}>
+      </suspense-element>
+    `);
+
+    const { mainSlottable, fallbackSlot, errorSlot, mainSlot } = getMembers(el);
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+  });
+
+  it('supports resetting the error state in order for pending and success to be possible again', async () => {
+    const el = await fixture(`
+      <suspense-element>
+        <span slot="fallback">Loading...</span>
+        <span slot="error">Error :(</span>
+        <${mainTag} reject></${mainTag}>
+      </suspense-element>
+    `);
+
+    const { mainSlottable, fallbackSlot, errorSlot, mainSlot } = getMembers(el);
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    mainSlottable.dispatchEvent(new ResetErrorEvent());
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`block`);
+  });
+
+  it('supports resetting the error state while a pending task was already sent and is still pending', async () => {
+    const el = await fixture(`
+      <suspense-element>
+        <span slot="fallback">Loading...</span>
+        <span slot="error">Error :(</span>
+        <${mainTag} reject></${mainTag}>
+      </suspense-element>
+    `);
+
+    const { mainSlottable, fallbackSlot, errorSlot, mainSlot } = getMembers(el);
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    mainSlottable.dispatchEvent(
+      new PendingTaskEvent(new Promise((resolve) => setTimeout(resolve, 50))),
+    );
+    mainSlottable.dispatchEvent(new ResetErrorEvent());
+
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`block`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`none`);
+
+    await aTimeout(50);
+    expect(getComputedStyle(errorSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(fallbackSlot).getPropertyValue('display')).to.equal(`none`);
+    expect(getComputedStyle(mainSlot).getPropertyValue('display')).to.equal(`block`);
   });
 });

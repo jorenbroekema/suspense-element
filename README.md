@@ -115,7 +115,45 @@ class MainElement extends HTMLElement {
 }
 ```
 
-> With a Lit component you would probably set shouldUpdate to false until all data is available that the template depends on and trigger a manual re-render.
+### Demo subsequent pending tasks
+
+If you're viewing the docs site, below is a demo of the suspense-element where the main element fires pending tasks in 3 second intervals, each resolving in 1 second. It switches between resolving and rejecting.
+
+<suspense-element class="demo">
+  <span slot="fallback">Loading...</span>
+  <span slot="error">Error :(</span>
+  <demo-element pending-interval></demo-element>
+</suspense-element>
+
+#### ResetErrorEvent
+
+When sending multiple pending tasks, either in a single event, stacking multiple, or in subsequent (unstacked) pending tasks, `suspense-element` has to decide what to do when any of these tasks throw.
+It will display the error slot if it encounters any error.
+It will keep doing so even if all pending tasks have completed (some threw), and you send a new one completely separately.
+The reason for this behavior is that when your main element depends on asynchronous tasks, and one of them throws at any point, new pending tasks do not mean a recovery from old errors even if the new task resolves, so it makes more sense to maintain the error state.
+
+If you need to recover from this you can do so manually, by sending a ResetErrorEvent to the `suspense-element`.
+This will reset the internal error state and re-evaluate if there are any pending tasks, if so, render the fallback slot.
+
+```js
+import { ResetErrorEvent } from 'suspense-element';
+
+class MainElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.dispatchEvent(new PendingTaskEvent(
+      new Promise((resolve, reject) => setTimeout(reject, 100)),
+    ));
+
+    setTimeout(() => {
+      this.dispatchEvent(new ResetErrorEvent());
+      // error slot is still displayed, but sending a new pending task event 
+      // will set the state to 'pending' and display fallback slot.
+    }, 110);
+  }
+}
+```
 
 ## Rationale
 
