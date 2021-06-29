@@ -1,4 +1,4 @@
-import { PendingTaskEvent } from '../src/PendingTaskEvent.js';
+import { PendingTaskEvent, ResetErrorEvent } from '../index.js';
 
 export class DemoElement extends HTMLElement {
   constructor() {
@@ -6,6 +6,7 @@ export class DemoElement extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     /** @type {string[]} */
     this.listData = [];
+    this.resolve = false;
   }
 
   connectedCallback() {
@@ -18,6 +19,22 @@ export class DemoElement extends HTMLElement {
       }, 1000),
     );
     this.dispatchEvent(new PendingTaskEvent(this.list));
+
+    if (this.hasAttribute('pending-interval')) {
+      setInterval(() => {
+        this.dispatchEvent(new ResetErrorEvent());
+        this.dispatchEvent(
+          new PendingTaskEvent(
+            new Promise((resolve, reject) =>
+              setTimeout(() => {
+                this.resolve ? resolve() : reject();
+                this.resolve = !this.resolve;
+              }, 1000),
+            ),
+          ),
+        );
+      }, 3000);
+    }
   }
 
   render() {
