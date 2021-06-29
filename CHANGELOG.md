@@ -1,5 +1,11 @@
 # suspense-element
 
+## 0.4.0
+
+### Minor Changes
+
+- b51c91c: Support multiple pending tasks sent in separate events. Support going back to pending state after success. Support going back to pending state after error, by sending a ResetErrorEvent to the suspense-element.
+
 ## 0.3.1
 
 ### Patch Changes
